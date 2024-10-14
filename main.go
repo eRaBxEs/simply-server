@@ -22,7 +22,10 @@ type GreetingResponse struct {
 func greetHandler(w http.ResponseWriter, r *http.Request) {
 	response := Response{Message: "Hello"}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func greetByNameHandler(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +45,7 @@ func greetAllNamesHandler(w http.ResponseWriter, r *http.Request) {
 	// process request
 	var req GreetingRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalied request body", http.StatusBadRequest)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
